@@ -1,0 +1,62 @@
+#{% raw %}
+name: Validate Pull Request Source Branch
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+env:
+  PR_AUTHORIZED_BRANCH_PAIRS: |
+    *:integration
+    integration:main
+
+jobs:
+  check-source-target-branch-match:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR Source and Target Branches
+        run: |
+          # Extract base and source branch names from the pull request event
+          base_branch="${{ github.event.pull_request.base.ref }}"
+          source_branch="${{ github.event.pull_request.head.ref }}"
+
+          # Display the PR branch names
+          echo "PR Source branch: $source_branch"
+          echo "PR Target branch: $base_branch"
+
+          # Initialize authorization flag
+          authorized="false"
+
+          # Loop through each authorized branch pair
+          while IFS= read -r authorized_branch_pair; do
+            # Skip empty lines
+            if [ -z "$authorized_branch_pair" ]; then
+              continue
+            fi
+
+            # Extract source and target branches from the pair
+            IFS=: read -r source_branch_authorized target_branch_authorized <<< "$authorized_branch_pair"
+
+            # Check if the pull request matches an authorized branch pair
+            if [[ "$source_branch_authorized" == "*" && "$base_branch" == "$target_branch_authorized" ]]; then
+              authorized="true"
+              break
+            elif [[ "$base_branch" == "$target_branch_authorized" && "$source_branch" == "$source_branch_authorized" ]]; then
+              authorized="true"
+              break
+            fi
+          done <<< "$PR_AUTHORIZED_BRANCH_PAIRS"
+
+
+          # Check if the pull request is authorized and provide feedback
+          if [ "$authorized" != "true" ]; then
+            echo "This pull request does not meet the specified conditions."
+            echo "Authorized PR branch pairs:"
+            echo "$PR_AUTHORIZED_BRANCH_PAIRS"
+            echo "Please ensure your branching strategy adheres to the specified conditions of the project."
+            exit 1
+          else
+            echo "Pull request meets the branching strategy conditions."
+          fi
+#{% endraw %}

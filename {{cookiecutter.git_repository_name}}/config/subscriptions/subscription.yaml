@@ -1,0 +1,16 @@
+# Example file to show what a subscription config looks like.
+# Do create a real subscription config, copy the following in a .yaml file in this same
+# directory
+rule_id: "rule15_v2_${project_env}"
+subscription:
+  scope: "[SCOPE]"
+  source:
+    project_name: ${project_id}
+    dataset_name: "d_template_infra_reporting_eu_${project_env}"
+    table_name: "t_rpt_template"
+  destination:
+    project_name: ${project_id}
+    dataset_name: "d_template_infra_reporting_eu_${project_env}"
+    view_name: "t_rpt_template"
+  placeholders:
+    country : "dummy_country"

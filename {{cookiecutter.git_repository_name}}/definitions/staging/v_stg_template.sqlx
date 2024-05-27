@@ -1,0 +1,14 @@
+config {
+  type: "view",
+  database: dataform.projectConfig.vars.project + dataform.projectConfig.vars.env,
+  schema: "d_" + dataform.projectConfig.vars.use_case + "_staging_eu_" + dataform.projectConfig.vars.env,
+
+  tags: ["staging"]
+}
+
+SELECT
+  CURRENT_DATE() AS dummy_ingestion_date,
+  "FR" AS dummy_country,
+  1 AS dummy_field
+  -- FROM
+  --   ${ref("dummy_table")}

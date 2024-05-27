@@ -1,0 +1,14 @@
+config {
+  type: "view",
+
+  database: dataform.projectConfig.vars.project + dataform.projectConfig.vars.env,
+  schema: "d_" + dataform.projectConfig.vars.use_case + "_reporting_eu_" + dataform.projectConfig.vars.env,
+  description: "Reporting view for [usecase], ...",
+
+  tags: ["reporting"]
+}
+
+SELECT
+  dummy_field
+FROM
+  ${ref("v_stg_template")}

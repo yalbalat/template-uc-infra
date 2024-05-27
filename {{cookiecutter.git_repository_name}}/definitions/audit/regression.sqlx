@@ -1,0 +1,40 @@
+config {
+    type: "table",
+    database: dataform.projectConfig.vars.project + dataform.projectConfig.vars.env,
+    schema: "d_" + dataform.projectConfig.vars.use_case + "_audit_eu_" + dataform.projectConfig.vars.env,
+    disabled: true,
+    tags: ["audit"]
+}
+
+  CREATE TEMPORARY TABLE old_data AS (
+  SELECT
+    dummy_country,
+    SUM(dumy_field) AS dumy_field
+  FROM
+    ${ref('t_rpt_template')} FOR SYSTEM_TIME AS OF TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 DAY)
+  GROUP BY
+    dummy_country
+   );
+  CREATE TEMPORARY TABLE new_data AS (
+  SELECT
+    dummy_country,
+    SUM(dumy_field) AS dumy_field
+  FROM
+    ${ref('t_rpt_template')}
+  GROUP BY
+    dummy_country
+   );
+SELECT
+  new_data.dummy_country,
+  new_data.dumy_field AS new_dumy_field,
+  old_data.dumy_field AS old_dumy_field,
+  new_data.dumy_field-old_data.dumy_field AS delta,
+  (new_data.dumy_field-old_data.dumy_field)/new_data.dumy_field*100 as percentage
+FROM
+  new_data AS new_data
+LEFT JOIN
+  old_data
+ON
+  old_data.dummy_country=new_data.dummy_country
+ORDER BY
+  new_data.dummy_country

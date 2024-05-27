@@ -1,0 +1,38 @@
+#  /!\ Don't forget to also update the dataform.json file at the root of the project
+
+region: "europe-west1"
+
+apis_to_activate: [
+  "workflows.googleapis.com",
+  "run.googleapis.com",
+  "secretmanager.googleapis.com",
+  "dataform.googleapis.com"
+  ]
+
+git_organization_name: "{{cookiecutter.git_organization_name}}"
+git_repository_name:   "{{cookiecutter.git_repository_name}}"
+git_repository_url:    "{{cookiecutter.git_repository_url}}"
+
+# To manage the execution of Dataform manualy, remove this variable or put an empty string
+dataform_scheduler_cron: "{{cookiecutter.dataform_scheduler_cron}}"
+
+bigquery:
+  datasets_short_names: [
+      "staging",
+      "assertions"
+    ]
+  reporting_dataset_short_name: "reporting"
+  reporting_dataset_users: [
+    # "group:EMEA-GCP-${env}-BUSINESS@loreal.com"
+  ]
+
+access_management:
+  path_audit_force_reload: [
+    "definitions/reporting/t_rpt_template.sqlx"
+  ]
+
+event_driven: # If Set, please unset the dataform_scheduler_cron variable
+  warehouses_source_project: "emea-datafoundat-gbl-emea-pd"
+  successful_reload_warehouse_topics_to_subscribe: [
+    # "eventdriven-test-topic"
+  ]

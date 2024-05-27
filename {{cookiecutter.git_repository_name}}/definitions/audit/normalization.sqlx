@@ -1,0 +1,34 @@
+config {
+    type: "table",
+    database: dataform.projectConfig.vars.project + dataform.projectConfig.vars.env,
+    schema: "d_" + dataform.projectConfig.vars.use_case + "_audit_eu_" + dataform.projectConfig.vars.env,
+    disabled: true,
+    tags: ["audit"]
+}
+
+WITH
+  full_table AS (
+  SELECT
+    dummy_key,-- your joining key with the mappping table
+    dummy_field,
+    mapping.dummy_normalized_field AS dummy_normalized_field
+  FROM
+    ${ref('t_rpt_template')} AS report
+  LEFT JOIN
+    ${ref('dummy_mapping_table')} AS mapping
+  ON
+    report.dummy_key = mapping.dummy_key )
+SELECT
+  dummy_key,
+  dummy_field,
+  COUNT(*) AS total,
+  100.0 * SUM(CASE
+                WHEN dummy_normalized_field IS NULL THEN 0
+              ELSE
+                1
+              END) / COUNT(*) AS percent_normalized_field
+FROM
+  full_table
+GROUP BY
+  dummy_field,
+  dummy_key

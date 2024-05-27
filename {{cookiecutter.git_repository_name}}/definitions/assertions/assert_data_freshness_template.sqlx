@@ -1,0 +1,24 @@
+config {
+  type: "assertion",
+
+  database: dataform.projectConfig.vars.project + dataform.projectConfig.vars.env,
+  schema: "d_" + dataform.projectConfig.vars.use_case + "_assertions_eu_" + dataform.projectConfig.vars.env,
+  description: "Assert that ...",
+
+  tags: ["assertions"]
+}
+
+--- assertion will fail if the following query returns any rows
+WITH
+  freshness AS (
+    SELECT
+      DATE_DIFF(CURRENT_DATE(), MAX(dummy_ingestion_date), DAY) AS delay
+    FROM
+      ${ref("t_rpt_template")}
+  )
+SELECT
+  *
+FROM
+  freshness
+WHERE
+  delay > 1

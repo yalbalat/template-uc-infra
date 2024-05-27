@@ -1,0 +1,21 @@
+config {
+    type: "table"
+}
+
+pre_operations {
+    CALL ${ref('temp_table_proc')}(
+        _temp_table_name => 'temp_1999',
+        _year => 1999);
+
+    CALL ${ref('temp_table_proc')}(
+        _temp_table_name => 'temp_2018',
+        _year => 2018);
+}
+
+SELECT name, year
+FROM temp_1999
+
+UNION ALL
+
+SELECT name, year
+FROM temp_2018

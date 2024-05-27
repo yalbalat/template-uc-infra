@@ -1,0 +1,10 @@
+{
+    "git_organization_name": "oa-emea",
+    "git_repository_name": "emea-template-uc-infrastructure-v2",
+    "git_repository_url": "git@github.com:{{cookiecutter.git_organization_name}}/{{cookiecutter.git_repository_name}}.git",
+    "dataform_scheduler_cron": "0 0 1 * *",
+    "use_case": "uc-infra",
+    "use_case_title": "EMEA UC template",
+    "use_case_short_description": "",
+    "gcp_project_id": "emea-sbxhrialan-gbl-emea-dv"
+}

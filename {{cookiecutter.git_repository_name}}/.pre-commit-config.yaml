@@ -1,0 +1,37 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: fix-byte-order-marker
+    - id: check-merge-conflict
+    - id: check-json
+    - id: check-yaml
+    - id: check-added-large-files
+    - id: no-commit-to-branch
+      args: [--branch, main, --branch, integration]
+- repo: https://github.com/sqlfluff/sqlfluff
+  rev: 2.1.2
+  hooks:
+    - id: sqlfluff-lint
+      args: ["--dialect", "bigquery", "--exclude-rules", "L014,L029,L031,L032,L034,L037,L042,L044,L057,L060"]
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.81.0
+  hooks:
+    - id: terraform_validate
+    - id: terraform_fmt
+      args:
+        - --args=-recursive
+    - id: terraform_tflint
+    - id: terraform_tfsec
+      args:
+      - >
+        --args=
+        -e google-storage-bucket-encryption-customer-key,google-iam-no-privileged-service-accounts
+- repo: https://github.com/devoteamgcloud/pre-commit-dataform
+  rev: v1.0.2
+  hooks:
+    - id: dataform_format

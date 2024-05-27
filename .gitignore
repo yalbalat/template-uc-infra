@@ -1,0 +1,17 @@
+# Dataform dependencies created in every push (in case the project has Dataform)
+node_modules/
+
+# Local .terraform directories
+**/.terraform/**
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Exclude all .terraform files such as .terraform.lock.hcl
+.terraform*
+
+.DS_Store
+
+# Folder for local testings
+test/

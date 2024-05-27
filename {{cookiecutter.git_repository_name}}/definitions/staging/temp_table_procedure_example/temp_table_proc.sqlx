@@ -1,0 +1,23 @@
+config {
+    type: "operations",
+    hasOutput: true,
+}
+
+CREATE OR REPLACE PROCEDURE
+  ${self()}(_temp_table_name STRING,
+    _year INT64)
+BEGIN
+DECLARE
+  sql_string STRING;
+SET
+  sql_string = FORMAT( """
+    CREATE TEMP TABLE `%s` AS
+    SELECT name, year
+    FROM `bigquery-public-data`.usa_names.usa_1910_current
+    WHERE year = %i
+    ORDER BY number DESC LIMIT 100
+    """, _temp_table_name, _year);
+EXECUTE IMMEDIATE
+  sql_string;
+END
+  ;

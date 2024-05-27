@@ -1,0 +1,72 @@
+# Cloud Run 'pubsub-to-workflow' service needs a Firestore database to work.
+resource "google_firestore_document" "firestore-eventdriven-db-documents" {
+  for_each    = toset(local.successful_reload_warehouse_topics_to_subscribe)
+  project     = var.project_id
+  collection  = "${var.project_id}-eventdriven-db-received-subscriptions"
+  document_id = "${each.value}-subscription"
+  fields      = "{\"is_received\":{\"booleanValue\":false}}"
+}
+
+# Pub/Sub subscriptions to successful reload warehouses topics
+# Push to Cloud Run to trigger the event driven workflow
+resource "google_pubsub_subscription" "successful-reload-warehouse-subscription" {
+  for_each = google_firestore_document.firestore-eventdriven-db-documents
+  project  = var.project_id
+  name     = each.value.document_id
+  topic    = "projects/${local.warehouses_source_project}/topics/${replace(each.value.document_id, "-subscription", "")}"
+
+  ack_deadline_seconds       = 20
+  message_retention_duration = "86400s" # 24h
+
+  retry_policy {
+    minimum_backoff = "10s"
+    maximum_backoff = "600s"
+  }
+
+  push_config {
+    push_endpoint = "${google_cloud_run_service.pubsub-to-workflow.status[0].url}/execute_workflow"
+    oidc_token {
+      service_account_email = google_service_account.pubsub-to-workflow-run-invoker.email
+    }
+  }
+}
+
+# The code of the Cloud Run service is available here : https://github.com/oa-emea/emea-pubsub-to-workflow-api
+resource "google_cloud_run_service" "pubsub-to-workflow" {
+  name     = "${var.project_id}-eventdriven-pubsub-to-workflow"
+  location = local.region
+
+  template {
+    spec {
+      containers {
+        image = "eu.gcr.io/emea-registry-gbl-emea-pd/emea-pubsub-to-workflow-api:v1.0.9"
+        env {
+          name  = "_WORKFLOW_ID"
+          value = "projects/${var.project_id}/locations/${local.region}/workflows/dataform-trigger-${local.usecase}"
+        }
+        env {
+          name = "_WORKFLOW_ARGUMENT"
+          value = jsonencode({
+            "env" = var.env
+          })
+        }
+        env {
+          name  = "_FIRESTORE_COLLECTION_NAME"
+          value = google_firestore_document.firestore-eventdriven-db-documents[local.successful_reload_warehouse_topics_to_subscribe[0]].collection
+        }
+      }
+      container_concurrency = 1
+      service_account_name  = google_service_account.pubsub-to-workflow-run.email
+    }
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale" = "1"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}

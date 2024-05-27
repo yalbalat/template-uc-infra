@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+   database: "itg-btdpfront-gbl-ww-" + dataform.projectConfig.vars.env,
+  schema: "dummy_dataset_" + dataform.projectConfig.vars.env,
+  name:"dummy_mapping_table"
+}

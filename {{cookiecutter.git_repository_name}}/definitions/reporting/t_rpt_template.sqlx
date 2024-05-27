@@ -1,0 +1,21 @@
+config {
+  type: "table",
+
+  database: dataform.projectConfig.vars.project + dataform.projectConfig.vars.env,
+  schema: "d_" + dataform.projectConfig.vars.use_case + "_reporting_eu_" + dataform.projectConfig.vars.env,
+  description: "Reporting table for [usecase], ...",
+
+  bigquery: {
+    partitionBy: "DATE_TRUNC(dummy_ingestion_date, MONTH)",
+    clusterBy: ["dummy_country"]
+  },
+
+  tags: ["reporting"]
+}
+
+SELECT
+  dummy_ingestion_date,
+  dummy_country,
+  dummy_field
+FROM
+  ${ref("v_stg_template")}

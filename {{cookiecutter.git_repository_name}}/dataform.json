@@ -1,0 +1,17 @@
+{
+    "defaultSchema": "dataform",
+    "assertionSchema": "dataform_assertions",
+    "warehouse": "bigquery",
+    "defaultDatabase": "{{cookiecutter.gcp_project_id[:-3]}}-dv",
+    "defaultLocation": "EU",
+    "vars":{
+      "use_case": "{{cookiecutter.use_case.replace('-', '_')}}",
+      "_use_case": "Mainly used for BigQuery and other GCP resource names.",
+
+      "project":"{{cookiecutter.gcp_project_id[:-2]}}",
+      "_project": "The project to use without env (e.g. 'emea-credit-gbl-emea-').",
+
+      "env":"dv",
+      "_env": "The default environment to use. Almost always set 'dv'."
+    }
+  }
